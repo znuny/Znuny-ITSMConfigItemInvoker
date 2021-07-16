@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_package version="1.0">
+    <Name>Znuny4OTRS-ITSMConfigItemInvoker</Name>
+    <Version>1.0.0</Version>
+    <Framework>6.0.x</Framework>
+    <PackageRequired Version="6.0.1">ITSMConfigurationManagement</PackageRequired>
+    <PackageRequired Version="6.0.76">Znuny4OTRS-Repo</PackageRequired>
+    <Vendor>Znuny GmbH</Vendor>
+    <URL>http://znuny.com/</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description Lang="en">Generic interface invoker to send ITSM config item data.</Description>
+    <Description Lang="de">Generic-Interface-Invoker, um ITSM-Config-Item-Daten zu senden.</Description>
+    <Filelist>
+        <File Permission="660" Location="Kernel/Config/Files/XML/Znuny4OTRSITSMConfigItemInvoker.xml"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Event/ObjectType/Znuny4OTRSITSMConfigItem.pm"/>
+        <File Permission="660" Location="Kernel/System/ITSMConfigItem/Event/Znuny4OTRSITSMConfigItemInvoker.pm"/>
+        <File Permission="660" Location="Kernel/System/Znuny4OTRSITSMConfigItemInvoker.pm"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSITSMConfigItemInvoker/System/ITSMConfigItem/Event/Znuny4OTRSITSMConfigItemInvoker.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSITSMConfigItemInvoker/System/Znuny4OTRSITSMConfigItemInvoker.t"/>
+    </Filelist>
+</otrs_package>
