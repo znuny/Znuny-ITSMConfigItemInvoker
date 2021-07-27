@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::GenericInterface::Event::ObjectType::Znuny4OTRSITSMConfigItem;
+package Kernel::GenericInterface::Event::ObjectType::ITSMConfigItem;
 
 use strict;
 use warnings;
@@ -15,11 +15,12 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::System::Log',
+    'Kernel::System::Znuny4OTRSITSMConfigItemInvoker',
 );
 
 =head1 NAME
 
-Kernel::GenericInterface::Event::ObjectType::Znuny4OTRSITSMConfigItem
+Kernel::GenericInterface::Event::ObjectType::ITSMConfigItem
 
 =cut
 
@@ -35,7 +36,8 @@ sub new {
 sub DataGet {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+    my $LogObject                             = $Kernel::OM->Get('Kernel::System::Log');
+    my $Znuny4OTRSITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRSITSMConfigItemInvoker');
 
     NEEDED:
     for my $Needed (qw(Data)) {
@@ -60,12 +62,15 @@ sub DataGet {
     }
 
     my $ConfigItemID = $Param{Data}->{ConfigItemID};
+    return if !$ConfigItemID;
 
-    # TODO: Fetch data of config item
+    my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+        ConfigItemID => $ConfigItemID,
+        Event        => $Param{Data}->{Event},
+    );
+    return if !IsHashRefWithData($ConfigItemData);
 
-    my %ConfigItemData;
-
-    return %ConfigItemData;
+    return %{$ConfigItemData};
 }
 
 1;

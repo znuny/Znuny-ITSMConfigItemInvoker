@@ -6,15 +6,21 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
+## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
+## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::SpellCheck)
+
 package Kernel::System::Znuny4OTRSITSMConfigItemInvoker;
 
 use strict;
 use warnings;
 
 our @ObjectDependencies = (
+    'Kernel::System::CustomerCompany',
+    'Kernel::System::CustomerUser',
     'Kernel::System::GeneralCatalog',
     'Kernel::System::ITSMConfigItem',
     'Kernel::System::Log',
+    'Kernel::System::XML',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -49,7 +55,10 @@ sub new {
     my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
         ConfigItemID => 21,
 
-        IncludePreviousVersion => 1, # defaults to 0; returns also data of previous version, if available
+        # OR
+        VersionID => 52,
+
+        Event => 'DeploymentStateUpdate', # optional; Will include data of previous version for certain events.
     );
 
 =cut
@@ -60,19 +69,21 @@ sub GetConfigItemData {
     my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
     my $ConfigItemObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
 
-    NEEDED:
-    for my $Needed (qw(ConfigItemID)) {
-        next NEEDED if defined $Param{$Needed};
-
+    if (
+        ( !defined $Param{ConfigItemID} && !defined $Param{VersionID} )
+        || ( defined $Param{ConfigItemID} && defined $Param{VersionID} )
+        )
+    {
         $LogObject->Log(
             Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
+            Message  => 'Either parameter ConfigItemID or Version ID has to be given.',
         );
         return;
     }
 
     my $CurrentConfigItemVersion = $ConfigItemObject->VersionGet(
         ConfigItemID => $Param{ConfigItemID},
+        VersionID    => $Param{VersionID},
         XMLDataGet   => 1,
     );
     return if !IsHashRefWithData($CurrentConfigItemVersion);
@@ -91,13 +102,73 @@ sub GetConfigItemData {
         $ConfigItemData{$Field} = $CurrentConfigItemVersion->{$Field};
     }
 
+    return \%ConfigItemData if !defined $Param{Event};
+
+    my %EventsToIncludePreviousVersion = (
+        DeploymentStateUpdate => 1,
+        IncidentStateUpdate   => 1,
+        NameUpdate            => 1,
+        ValueUpdate           => 1,
+        VersionCreate         => 1,
+    );
+
+    return \%ConfigItemData if !$EventsToIncludePreviousVersion{ $Param{Event} };
+
+    my $ConfigItemVersions = $ConfigItemObject->VersionList(
+        ConfigItemID => $Param{ConfigItemID},
+    );
+    return if !IsArrayRefWithData($ConfigItemVersions);
+    return if @{$ConfigItemVersions} < 2;
+
+    my $PreviousVersionID = $ConfigItemVersions->[-2];
+
+    $ConfigItemData{PreviousConfigItemVersion} = $Self->GetConfigItemData(
+        VersionID => $PreviousVersionID,
+    );
+
+    if ( $Param{Event} eq 'DeploymentStateUpdate' ) {
+        $ConfigItemData{DeploymentStateUpdate} = {
+            Old => {
+                ID      => $ConfigItemData{PreviousConfigItemVersion}->{DeplStateID},
+                Content => $ConfigItemData{PreviousConfigItemVersion}->{DeplState},
+            },
+            New => {
+                ID      => $ConfigItemData{DeplStateID},
+                Content => $ConfigItemData{DeplState},
+            },
+        };
+    }
+    elsif ( $Param{Event} eq 'IncidentStateUpdate' ) {
+        $ConfigItemData{IncidentStateUpdate} = {
+            Old => {
+                ID      => $ConfigItemData{PreviousConfigItemVersion}->{InciStateID},
+                Content => $ConfigItemData{PreviousConfigItemVersion}->{InciState},
+            },
+            New => {
+                ID      => $ConfigItemData{InciStateID},
+                Content => $ConfigItemData{InciState},
+            },
+        };
+    }
+    elsif ( $Param{Event} eq 'NameUpdate' ) {
+        $ConfigItemData{NameUpdate} = {
+            Old => {
+                Content => $ConfigItemData{PreviousConfigItemVersion}->{Name},
+            },
+            New => {
+                Content => $ConfigItemData{Name},
+            },
+        };
+    }
+    elsif ( $Param{Event} eq 'ValueUpdate' ) {
+        my $ChangedConfigItemValues = $Self->_FindChangedConfigItemValues(
+            ConfigItemID => $Param{ConfigItemID},
+        );
+
+        $ConfigItemData{ValueUpdate} = $ChangedConfigItemValues // {};
+    }
+
     return \%ConfigItemData;
-
-    #     my $ConfigItemVersions = $ConfigItemObject->VersionList(
-    #         ConfigItemID => $Param{ConfigItemID},
-    #     );
-
-    #     return;
 }
 
 =head2 _XML2Data()
@@ -128,14 +199,10 @@ sub _XML2Data {
         my $FieldDefinitionIndex = 0;
         my $FieldType;
 
-        #         my $Class;
-
         FIELDDEFINITION:
         for my $FieldDefinition ( @{ $Param{Definition} // [] } ) {
             if ( defined $FieldDefinition->{Key} && $FieldDefinition->{Key} eq $Field ) {
                 $FieldType = $FieldDefinition->{Input}->{Type};
-
-                #                 $Class     = $FieldDefinition->{Input}->{Class};
                 last FIELDDEFINITION;
             }
 
@@ -165,8 +232,6 @@ sub _XML2Data {
                 my $ReadableValue = $Self->_GetReadableValue(
                     Value     => $Value,
                     FieldType => $FieldType,
-
-                    #                         Class     => $Class,
                 );
 
                 if ( $ReadableValue ne $Value ) {
@@ -200,7 +265,9 @@ sub _XML2Data {
 sub _GetReadableValue {
     my ( $Self, %Param ) = @_;
 
-    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+    my $GeneralCatalogObject  = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+    my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
+    my $CustomerUserObject    = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
     my $Value = $Param{Value};
 
@@ -209,9 +276,6 @@ sub _GetReadableValue {
 
     return $Value if !defined $Param{FieldType};
     return $Value if !length $Param{FieldType};
-
-    #     return $Value if !defined $Param{Class};
-    #     return $Value if !length $Param{Class};
 
     my $ReadableValue = $Value;
 
@@ -224,8 +288,175 @@ sub _GetReadableValue {
 
         $ReadableValue = $GeneralCatalogItemData->{Name};
     }
+    elsif ( $Param{FieldType} eq 'CustomerCompany' ) {
+        my %CustomerCompany = $CustomerCompanyObject->CustomerCompanyGet(
+            CustomerID => $Value,
+        );
+        return $Value if !%CustomerCompany;
+
+        delete $CustomerCompany{Config};
+        delete $CustomerCompany{CompanyConfig};
+
+        $ReadableValue = \%CustomerCompany;
+    }
+    elsif ( $Param{FieldType} eq 'Customer' ) {
+        my %CustomerUser = $CustomerUserObject->CustomerUserDataGet(
+            User => $Value,
+        );
+        return $Value if !%CustomerUser;
+
+        delete $CustomerUser{Config};
+        delete $CustomerUser{CompanyConfig};
+
+        $ReadableValue = \%CustomerUser;
+    }
 
     return $ReadableValue;
+}
+
+=head2 _FindChangedConfigItemValues()
+
+The following function is based on Kernel::System::ITSMConfigurationManagement::_FindChangedXMLValues()
+
+Origin: ITSMConfigurationManagement - f5afe974d300056e368a24237962d10bf25f1cd0 - Kernel/System/ITSMConfigItem/Version.pm
+Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
+
+Compares XML data of current config item version with the previous one (if one exists).
+
+    my $ChangedConfigItemValues = $Znuny4OTRSITSMConfigItemInvokerObject->_FindChangedConfigItemValues(
+        ConfigItemID => 123,
+    );
+
+Returns:
+
+    my $ChangedConfigItemValues = {
+        'NIC::2::IPoverDHCP::1' => {
+            New => {
+                Content       => '38',
+                ReadableValue => 'No',
+            },
+            Old => {
+                Content => '',
+            },
+        },
+    };
+
+=cut
+
+sub _FindChangedConfigItemValues {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $ConfigItemObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $XMLObject        = $Kernel::OM->Get('Kernel::System::XML');
+
+    NEEDED:
+    for my $Needed (qw(ConfigItemID)) {
+        next NEEDED if $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Need $Needed!",
+        );
+        return;
+    }
+
+    my $Versions = $ConfigItemObject->VersionList(
+        ConfigItemID => $Param{ConfigItemID},
+    );
+
+    return if !@{$Versions};
+    return if @{$Versions} < 2;
+
+    my $PreviousVersion = $ConfigItemObject->VersionGet(
+        VersionID => $Versions->[-2],
+    );
+    return if !IsHashRefWithData($PreviousVersion);
+
+    my $CurrentVersion = $ConfigItemObject->VersionGet(
+        VersionID => $Versions->[-1],
+    );
+    return if !IsHashRefWithData($CurrentVersion);
+
+    my $CurrentXMLData  = $CurrentVersion->{XMLData};
+    my $PreviousXMLData = $PreviousVersion->{XMLData};
+
+    my $Definition = $CurrentVersion->{XMLDefinition};
+
+    # Get all tag keys in current and previous XML data.
+    # Use a side effect of XMLHash2D() which adds the tag keys to the passed in data structure.
+    $XMLObject->XMLHash2D( XMLHash => $CurrentXMLData );
+    my @TagKeys = $ConfigItemObject->_GrabTagKeys(
+        Data => [
+            $PreviousXMLData,
+            $CurrentXMLData,
+        ],
+    );
+
+    my %UniqueTagKeys = map { $_ => 1 } @TagKeys;
+
+    my %ChangedConfigItemValues;
+    my %SuppressVersionAdd;
+
+    TAGKEY:
+    for my $TagKey ( sort keys %UniqueTagKeys ) {
+        my $CurrentContent  = eval '$CurrentXMLData->' . $TagKey . '->{Content}'  || '';    ## no critic
+        my $PreviousContent = eval '$PreviousXMLData->' . $TagKey . '->{Content}' || '';    ## no critic
+
+        next TAGKEY if $CurrentContent eq $PreviousContent;
+
+        # Remove leading 'Version' key.
+        ( my $HashKey = $TagKey ) =~ s{\A\[\d+\]\{'Version'\}\[\d+\]}{};
+
+        # Remove {''} around keys.
+        $HashKey =~ s{(\{'|'\})}{}g;
+
+        # Substitute [1] (index) with ::1::
+        $HashKey =~ s{\[(\d+)\]}{::$1::}g;
+
+        # Remove trailing ::
+        $HashKey =~ s{::\z}{};
+
+        $ChangedConfigItemValues{$HashKey} = {
+            Old => {
+                Content => $PreviousContent,
+            },
+            New => {
+                Content => $CurrentContent,
+            },
+        };
+
+        # Check for general catalog entry and add its name.
+        ( my $AttributePath = $HashKey ) =~ s{::\d+}{}g;
+        next TAGKEY if !defined $AttributePath;
+        next TAGKEY if !length $AttributePath;
+
+        my $AttributeInfo = $ConfigItemObject->DefinitionAttributeInfo(
+            AttributePath => $AttributePath,
+            Definition    => $Definition,
+        );
+        next TAGKEY if !IsHashRefWithData($AttributeInfo);
+
+        my $PreviousReadableValue = $Self->_GetReadableValue(
+            Value     => $PreviousContent,
+            FieldType => $AttributeInfo->{Input}->{Type} // '',
+        );
+
+        my $CurrentReadableValue = $Self->_GetReadableValue(
+            Value     => $CurrentContent,
+            FieldType => $AttributeInfo->{Input}->{Type} // '',
+        );
+
+        if ( $PreviousReadableValue ne $PreviousContent ) {
+            $ChangedConfigItemValues{$HashKey}->{Old}->{ReadableValue} = $PreviousReadableValue;
+        }
+
+        if ( $CurrentReadableValue ne $CurrentContent ) {
+            $ChangedConfigItemValues{$HashKey}->{New}->{ReadableValue} = $CurrentReadableValue;
+        }
+    }
+
+    return \%ChangedConfigItemValues;
 }
 
 1;
