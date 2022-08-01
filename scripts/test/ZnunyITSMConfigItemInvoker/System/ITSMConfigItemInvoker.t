@@ -22,12 +22,12 @@ $Kernel::OM->ObjectParamAdd(
     },
 );
 
-my $HelperObject                          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $ConfigItemObject                      = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
-my $GeneralCatalogObject                  = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
-my $ValidObject                           = $Kernel::OM->Get('Kernel::System::Valid');
-my $Znuny4OTRSITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRSITSMConfigItemInvoker');
-my $ZnunyHelperObject                     = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $HelperObject                = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ConfigItemObject            = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+my $GeneralCatalogObject        = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+my $ValidObject                 = $Kernel::OM->Get('Kernel::System::Valid');
+my $ITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItemInvoker');
+my $ZnunyHelperObject           = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 
 my $UserID = 1;
 
@@ -129,7 +129,7 @@ my $FirstVersionID = $ZnunyHelperObject->_ITSMConfigItemVersionAdd(
 #
 # Invalid config item ID
 #
-my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+my $ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => 999999999999,
     Event        => undef,
 );
@@ -142,7 +142,7 @@ $Self->False(
 #
 # Valid config item ID without event
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => undef,
 );
@@ -243,7 +243,7 @@ my $SecondVersionID = $ZnunyHelperObject->_ITSMConfigItemVersionAdd(
     },
 );
 
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => undef,
 );
@@ -317,7 +317,7 @@ $Self->IsDeeply(
 # Valid config item ID with event ConfigItemCreate
 # This should not return the data of the previous config item version.
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => 'ConfigItemCreate',
 );
@@ -332,7 +332,7 @@ $Self->IsDeeply(
 # Valid config item ID with event ConfigItemDelete
 # This should not return the data of the previous config item version.
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => 'ConfigItemDelete',
 );
@@ -348,7 +348,7 @@ $Self->IsDeeply(
 # This should return the data of the previous config item version and as separate information
 # the changed deployment status.
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => 'DeploymentStateUpdate',
 );
@@ -381,7 +381,7 @@ $Self->IsDeeply(
 # This should return the data of the previous config item version and as separate information
 # the changed incident status.
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => 'IncidentStateUpdate',
 );
@@ -414,7 +414,7 @@ $Self->IsDeeply(
 # This should return the data of the previous config item version and as separate information
 # the changed name.
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => 'NameUpdate',
 );
@@ -445,7 +445,7 @@ $Self->IsDeeply(
 # This should return the data of the previous config item version and as separate information
 # the changed values of field CPU.
 #
-$ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+$ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => 'ValueUpdate',
 );

@@ -16,7 +16,7 @@ use Kernel::System::ObjectManager;
 
 use Kernel::System::VariableCheck qw(:all);
 
-use Kernel::GenericInterface::Invoker::Znuny4OTRSITSMConfigItemInvoker::Generic;
+use Kernel::GenericInterface::Invoker::ITSMConfigItemInvoker::Generic;
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
@@ -31,7 +31,7 @@ my $ValidObject          = $Kernel::OM->Get('Kernel::System::Valid');
 my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
 my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
 
-my $GenericInvokerObject = Kernel::GenericInterface::Invoker::Znuny4OTRSITSMConfigItemInvoker::Generic->new(
+my $GenericInvokerObject = Kernel::GenericInterface::Invoker::ITSMConfigItemInvoker::Generic->new(
     DebuggerObject => 1,    # this is a mock-up, the debugger object will not be used within this test.
 );
 

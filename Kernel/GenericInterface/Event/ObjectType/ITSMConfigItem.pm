@@ -15,7 +15,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::System::Log',
-    'Kernel::System::Znuny4OTRSITSMConfigItemInvoker',
+    'Kernel::System::ITSMConfigItemInvoker',
 );
 
 =head1 NAME
@@ -36,8 +36,8 @@ sub new {
 sub DataGet {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject                             = $Kernel::OM->Get('Kernel::System::Log');
-    my $Znuny4OTRSITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRSITSMConfigItemInvoker');
+    my $LogObject                   = $Kernel::OM->Get('Kernel::System::Log');
+    my $ITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItemInvoker');
 
     NEEDED:
     for my $Needed (qw(Data)) {
@@ -64,7 +64,7 @@ sub DataGet {
     my $ConfigItemID = $Param{Data}->{ConfigItemID};
     return if !$ConfigItemID;
 
-    my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+    my $ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
         ConfigItemID => $ConfigItemID,
         Event        => $Param{Data}->{Event},
     );

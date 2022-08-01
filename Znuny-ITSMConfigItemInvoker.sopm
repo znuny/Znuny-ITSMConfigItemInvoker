@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<otrs_package version="1.0">
+    <Name>Znuny-ITSMConfigItemInvoker</Name>
+    <Version>6.0.1</Version>
+    <ChangeLog Version="6.0.1" Date="2021-07-27 10:16:39 +0200">Initial release for Znuny 6.</ChangeLog>
+    <Framework>6.4.x</Framework>
+    <PackageRequired Version="6.4.2">ITSMConfigurationManagement</PackageRequired>
+    <Vendor>Znuny GmbH</Vendor>
+    <URL>http://znuny.com/</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description Lang="en">Generic interface invoker to send ITSM config item data.</Description>
+    <Description Lang="de">Generic-Interface-Invoker, um ITSM-Config-Item-Daten zu senden.</Description>
+    <Filelist>
+        <File Permission="660" Location="Kernel/Config/Files/XML/ZnunyITSMConfigItemInvoker.xml"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Event/ObjectType/ITSMConfigItem.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Invoker/ITSMConfigItemInvoker/Generic.pm"/>
+        <File Permission="660" Location="Kernel/System/ITSMConfigItemInvoker.pm"/>
+        <File Permission="660" Location="scripts/test/ZnunyITSMConfigItemInvoker/GenericInterface/Invoker/ITSMConfigItemInvoker/Generic.t"/>
+        <File Permission="660" Location="scripts/test/ZnunyITSMConfigItemInvoker/System/ITSMConfigItemInvoker.t"/>
+        <File Permission="660" Location="scripts/test/ZnunyITSMConfigItemInvoker/System/ITSMConfigItemInvokerReadableValue.t"/>
+        <File Permission="660" Location="var/packagesetup/ZnunyITSMConfigItemInvoker.pm"/>
+    </Filelist>
+    <CodeInstall Type="post"><![CDATA[
+        $Kernel::OM->Get('var::packagesetup::ZnunyITSMConfigItemInvoker')->CodeInstall();
+    ]]></CodeInstall>
+    <CodeReinstall Type="post"><![CDATA[
+        $Kernel::OM->Get('var::packagesetup::ZnunyITSMConfigItemInvoker')->CodeReinstall();
+    ]]></CodeReinstall>
+    <CodeUpgrade Type="post"><![CDATA[
+        $Kernel::OM->Get('var::packagesetup::ZnunyITSMConfigItemInvoker')->CodeUpgrade();
+    ]]></CodeUpgrade>
+    <CodeUninstall Type="post"><![CDATA[
+        $Kernel::OM->Get('var::packagesetup::ZnunyITSMConfigItemInvoker')->CodeUninstall();
+    ]]></CodeUninstall>
+    <PackageMerge Name="Znuny4OTRS-ITSMConfigItemInvoker" TargetVersion="6.1.0"></PackageMerge>
+</otrs_package>

@@ -9,7 +9,7 @@
 ## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::SpellCheck)
 
-package Kernel::System::Znuny4OTRSITSMConfigItemInvoker;
+package Kernel::System::ITSMConfigItemInvoker;
 
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 =head1 NAME
 
-Kernel::System::Znuny4OTRSITSMConfigItemInvoker
+Kernel::System::ITSMConfigItemInvoker
 
 =head1 PUBLIC INTERFACE
 
@@ -35,7 +35,7 @@ Kernel::System::Znuny4OTRSITSMConfigItemInvoker
 
     Don't use the constructor directly, use the ObjectManager instead:
 
-    my $Znuny4OTRSITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRSITSMConfigItemInvoker');
+    my $ITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItemInvoker');
 
 =cut
 
@@ -52,7 +52,7 @@ sub new {
 
     Returns hash with complete data of config item with given ID.
 
-    my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+    my $ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
         ConfigItemID => 21,
 
         # OR
@@ -175,7 +175,7 @@ sub GetConfigItemData {
 
     Turns XML into Perl structure.
 
-    my $Success = $Znuny4OTRSITSMConfigItemInvokerObject->_XML2Data(
+    my $Success = $ITSMConfigItemInvokerObject->_XML2Data(
         Parent          => $Identifier,          # optional: contains the field name of the parent XML
         Result          => $Result,              # contains the reference to the result hash
         Data            => $Data{$Field}->[1],   # contains the XML hash to be parsed
@@ -252,7 +252,7 @@ sub _XML2Data {
 
     Maps value of certain field types (ID) to a value that can be read (name, text, etc.).
 
-    my $ReadableValue = $Znuny4OTRSITSMConfigItemInvokerObject->_GetReadableValue(
+    my $ReadableValue = $ITSMConfigItemInvokerObject->_GetReadableValue(
         Value     => 4,
         FieldType => 'GeneralCatalog',
     );
@@ -323,7 +323,7 @@ Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
 
 Compares XML data of current config item version with the previous one (if one exists).
 
-    my $ChangedConfigItemValues = $Znuny4OTRSITSMConfigItemInvokerObject->_FindChangedConfigItemValues(
+    my $ChangedConfigItemValues = $ITSMConfigItemInvokerObject->_FindChangedConfigItemValues(
         ConfigItemID => 123,
     );
 

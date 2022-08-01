@@ -37,13 +37,13 @@
             </Hash>
         </Value>
     </Setting>
-    <Setting Name="GenericInterface::Invoker::Module###Znuny4OTRSITSMConfigItemInvoker::Generic" Required="1" Valid="1">
+    <Setting Name="GenericInterface::Invoker::Module###ITSMConfigItemInvoker::Generic" Required="1" Valid="1">
         <Description Translatable="1">GenericInterface module registration for the invoker layer.</Description>
         <Navigation>GenericInterface::Invoker::ModuleRegistration</Navigation>
         <Value>
             <Hash>
                 <Item Key="Name">Generic</Item>
-                <Item Key="Controller">Znuny4OTRSITSMConfigItemInvoker</Item>
+                <Item Key="Controller">ITSMConfigItemInvoker</Item>
                 <Item Key="ConfigDialog">AdminGenericInterfaceInvokerDefault</Item>
             </Hash>
         </Value>

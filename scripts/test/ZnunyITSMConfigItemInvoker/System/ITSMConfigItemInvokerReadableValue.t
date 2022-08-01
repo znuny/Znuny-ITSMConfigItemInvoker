@@ -22,16 +22,27 @@ $Kernel::OM->ObjectParamAdd(
     },
 );
 
-my $HelperObject                          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $ConfigItemObject                      = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
-my $GeneralCatalogObject                  = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
-my $ValidObject                           = $Kernel::OM->Get('Kernel::System::Valid');
-my $Znuny4OTRSITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRSITSMConfigItemInvoker');
-my $ZnunyHelperObject                     = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
-my $CustomerUserObject                    = $Kernel::OM->Get('Kernel::System::CustomerUser');
-my $CustomerCompanyObject                 = $Kernel::OM->Get('Kernel::System::CustomerCompany');
+my $HelperObject                = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ConfigItemObject            = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+my $GeneralCatalogObject        = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+my $ValidObject                 = $Kernel::OM->Get('Kernel::System::Valid');
+my $ITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItemInvoker');
+my $ZnunyHelperObject           = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $CustomerUserObject          = $Kernel::OM->Get('Kernel::System::CustomerUser');
+my $CustomerCompanyObject       = $Kernel::OM->Get('Kernel::System::CustomerCompany');
+my $ConfigObject                = $Kernel::OM->Get('Kernel::Config');
 
 my $UserID = 1;
+
+$ConfigObject->Set(
+    Key   => 'CheckEmailAddresses',
+    Value => 0,
+);
+
+$ConfigObject->Set(
+    Key   => 'CheckMXRecord',
+    Value => 0,
+);
 
 my $ValidID = $ValidObject->ValidLookup(
     Valid => 'valid',
@@ -137,7 +148,7 @@ my $VersionID = $ZnunyHelperObject->_ITSMConfigItemVersionAdd(
     },
 );
 
-my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+my $ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
     ConfigItemID => $ConfigItemID,
     Event        => undef,
 );

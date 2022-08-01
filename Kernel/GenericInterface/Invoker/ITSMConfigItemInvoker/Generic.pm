@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::GenericInterface::Invoker::Znuny4OTRSITSMConfigItemInvoker::Generic;
+package Kernel::GenericInterface::Invoker::ITSMConfigItemInvoker::Generic;
 
 use strict;
 use warnings;
@@ -18,7 +18,7 @@ our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
-Kernel::GenericInterface::Invoker::Znuny4OTRSITSMConfigItemInvoker::Generic
+Kernel::GenericInterface::Invoker::ITSMConfigItemInvoker::Generic
 
 =head1 PUBLIC INTERFACE
 
@@ -70,10 +70,10 @@ prepare the invocation of the configured remote web service.
 sub PrepareRequest {
     my ( $Self, %Param ) = @_;
 
-    my $ConfigObject                          = $Kernel::OM->Get('Kernel::Config');
-    my $Znuny4OTRSITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRSITSMConfigItemInvoker');
+    my $ConfigObject                = $Kernel::OM->Get('Kernel::Config');
+    my $ITSMConfigItemInvokerObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItemInvoker');
 
-    my $ConfigItemData = $Znuny4OTRSITSMConfigItemInvokerObject->GetConfigItemData(
+    my $ConfigItemData = $ITSMConfigItemInvokerObject->GetConfigItemData(
         ConfigItemID => $Param{Data}->{ConfigItemID},
 
         # AdvancedGI puts event into $Param{Data}->{Event},
