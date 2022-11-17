@@ -2,8 +2,6 @@
 <otrs_package version="1.0">
     <Name>Znuny-ITSMConfigItemInvoker</Name>
     <Version>6.4.1</Version>
-    <ChangeLog Version="6.4.1" Date="2022-08-01 14:58:02 +0200">Initital release for Znuny 6.4.</ChangeLog>
-    <ChangeLog Version="6.0.1" Date="2021-07-27 10:16:39 +0200">Initial release for Znuny 6.</ChangeLog>
     <Framework>6.4.x</Framework>
     <PackageRequired Version="6.4.2">ITSMConfigurationManagement</PackageRequired>
     <Vendor>Znuny GmbH</Vendor>
@@ -11,6 +9,8 @@
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
     <Description Lang="en">Generic interface invoker to send ITSM config item data.</Description>
     <Description Lang="de">Generic-Interface-Invoker, um ITSM-Config-Item-Daten zu senden.</Description>
+    <ChangeLog Version="6.4.1" Date="2022-08-01 14:58:02 +0200">Initital release for Znuny 6.4.</ChangeLog>
+    <ChangeLog Version="6.0.1" Date="2021-07-27 10:16:39 +0200">Initial release for Znuny 6.</ChangeLog>
     <Filelist>
         <File Permission="660" Location="Kernel/Config/Files/XML/ZnunyITSMConfigItemInvoker.xml"/>
         <File Permission="660" Location="Kernel/GenericInterface/Event/ObjectType/ITSMConfigItem.pm"/>
